@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Chat Application</title>
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #007bff;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 90vh;
+    }
+
+    /* Chat Window Styles */
+    .chat-window {
+      width: 500px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+    }
+
+    .chat-area {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      background-color: #fff;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+      max-width: 80%;
+    }
+
+    .message.sent {
+      align-self: flex-end;
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    .message.received {
+      align-self: flex-start;
+      background-color: #e9e9e9;
+    }
+
+    /* User Input Styles */
+    .user-input {
+      display: flex;
+      padding: 20px;
+      background-color: #fff;
+    }
+
+    #message-input {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    #send-button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #send-button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Scrollbar styling for chat area */
+    .chat-area::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chat-area::-webkit-scrollbar-track {
+      background: #f0f0f0;
+    }
+
+    .chat-area::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+   Group Chat Application
+  </header>
+
+  <div class="container">
+    <div class="chat-window">
+      <div class="chat-area">
+        <div class="chat-messages">
+          <div class="message received">Hello! How can I assist you today?</div>
+          <div class="message sent">I need help with my project.</div>
+        </div>
+      </div>
+      <div class="user-input">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sendButton = document.getElementById('send-button');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.querySelector('.chat-messages');
+
+    sendButton.addEventListener('click', () => {
+      const messageText = messageInput.value.trim();
+
+      if (messageText) {
+        // Create the sent message element
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'sent');
+        messageElement.textContent = messageText;
+        
+        // Append the message to the chat messages
+        chatMessages.appendChild(messageElement);
+        
+        // Clear the input field
+        messageInput.value = '';
+        
+        // Scroll to the latest message
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    });
+  </script>
+
+</body>
+</html>

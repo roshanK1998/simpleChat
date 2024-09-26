@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Chat</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Lato');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_1280.jpg');
+            background-size: cover;
+            background-position: center center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        h2 {
+            text-shadow: 1px 1px 2px rgba(0,0,0,1);
+            color: #fff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #login-section, #chat-section {
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 25px;
+            box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.7);
+            overflow: hidden;
+            padding: 30px;
+            position: relative;
+            width: 400px;
+            max-width: 100%;
+            margin: auto;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+            margin: 10px 0;
+            background-color: #2f3136;
+            color: #ffffff;
+        }
+
+        button {
+            background-color: #000702;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #chat-box {
+            border: 1px solid #444;
+            height: 400px;
+            overflow-y: scroll;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            background-color: rgba(47, 49, 54, 0.8);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-box p {
+            margin: 5px 0; 
+            padding: 10px; 
+            border-radius: 5px; 
+            word-wrap: break-word; /* Ensure long messages break */
+        }
+
+        .message-user {
+            background-color: #43b581; /* Green for user messages */
+            align-self: flex-end; /* Align user messages to the right */
+        }
+
+        .message-other {
+            background-color: #f04747; /* Red for other messages */
+            align-self: flex-start; /* Align other messages to the left */
+        }
+
+        .hidden { display: none; }
+
+        #send-message, #login-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
+
+        #logout-btn, #clear-chat-btn {
+            background-color: #cf6679; /* Red for logout/clear buttons */
+        }
+
+        #logout-btn:hover, #clear-chat-btn:hover {
+            background-color: #b42d4e; /* Darker red on hover */
+        }
+
+        @media (max-width: 600px) {
+            #login-section, #chat-section {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Form -->
+    <div id="login-section">
+        <h2>Login</h2>
+        <input type="text" id="email" placeholder="Email" required><br>
+        <input type="password" id="password" placeholder="Password" required><br>
+        <button id="login-btn">Login</button>
+        <p id="login-message"></p>
+    </div>
+
+    <!-- Chat Section (Initially Hidden) -->
+    <div id="chat-section" class="hidden">
+        <h2>Chat Room</h2>
+        <div id="chat-box">
+            <p>Loading chat messages...</p>
+        </div>
+        <input type="text" id="message" placeholder="Type your message" required>
+        <button id="send-btn">Send</button>
+        <p id="send-message"></p>
+        
+        <!-- Logout Button -->
+        <button id="logout-btn">Logout</button>
+        <br><br>
+        
+        <!-- Clear Chat Button -->
+        <button id="clear-chat-btn">Clear Chat</button>
+    </div>
+
+    <script>
+        let token = sessionStorage.getItem('token');
+
+        // Show chat section if already logged in
+        if (token) {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+            loadMessages();
+            setInterval(loadMessages, 5000); // Poll every 5 seconds
+        }
+
+        // Login function
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                document.getElementById('login-message').innerText = "Please fill in all fields.";
+                return;
+            }
+
+            // Make a request to the login API
+            fetch('http://localhost:3000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Login successful') {
+                        document.getElementById('login-message').innerText = 'Login successful!';
+                        // Store the JWT token in session storage
+                        sessionStorage.setItem('token', data.token);
+                        token = data.token;
+
+                        // Show the chat section and hide login section
+                        document.getElementById('login-section').classList.add('hidden');
+                        document.getElementById('chat-section').classList.remove('hidden');
+                        loadMessages();
+                        setInterval(loadMessages, 5000); // Poll every 5 seconds
+                    } else {
+                        document.getElementById('login-message').innerText = data.message;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('login-message').innerText = 'Error logging in: ' + err.message;
+                });
+        });
+
+        // Function to load chat messages
+        function loadMessages() {
+            // Fetch chat messages from your API
+            fetch('http://localhost:3000/api/messages', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const chatBox = document.getElementById('chat-box');
+                    chatBox.innerHTML = ''; // Clear the chat box
+                    data.messages.forEach(message => {
+                        const messageElement = document.createElement('p');
+                        messageElement.className = message.userId === 'your-user-id' ? 'message-user' : 'message-other';
+                        messageElement.textContent = message.text;
+                        chatBox.appendChild(messageElement);
+                    });
+                    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+                })
+                .catch(err => console.error('Error loading messages:', err));
+        }
+
+        // Send message function
+        document.getElementById('send-btn').addEventListener('click', () => {
+            const messageInput = document.getElementById('message');
+            const messageText = messageInput.value;
+
+            if (!messageText) {
+                document.getElementById('send-message').innerText = "Please enter a message.";
+                return;
+            }
+
+            fetch('http://localhost:3000/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ text: messageText })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    messageInput.value = ''; // Clear the input
+                    document.getElementById('send-message').innerText = data.message; // Show success message
+                    loadMessages(); // Reload messages
+                })
+                .catch(err => console.error('Error sending message:', err));
+        });
+
+        // Logout function
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('token'); // Remove token
+            token = null; // Clear token variable
+            document.getElementById('chat-section').classList.add('hidden'); // Hide chat section
+            document.getElementById('login-section').classList.remove('hidden'); // Show login section
+        });
+
+        // Clear chat function
+        document.getElementById('clear-chat-btn').addEventListener('click', () => {
+            fetch('http://localhost:3000/api/messages/clear', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loadMessages(); // Reload messages
+                    document.getElementById('send-message').innerText = data.message; // Show success message
+                })
+                .catch(err => console.error('Error clearing chat:', err));
+        });
+    </script>
+</body>
+</html>

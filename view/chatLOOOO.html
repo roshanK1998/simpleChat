@@ -1,0 +1,359 @@
+<!--file:///C:/Users/HP/Desktop/chat.html-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Chat</title>
+    <style>
+
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: url('https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_1280.jpg');
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #ffffff;
+}
+
+h2 {
+    text-shadow: 1px 1px 2px rgba(0,0,0,1);
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#login-section, #chat-section {
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 25px;
+    box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.7);
+    overflow: hidden;
+    padding: 30px;
+    position: relative;
+    width: 400px;
+    max-width: 100%;
+    margin: auto;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    margin: 10px 0;
+    background-color: #2f3136;
+    color: #ffffff;
+}
+
+button {
+    background-color: #000702;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+#chat-box {
+    border: 1px solid #444;
+    height: 400px;
+    overflow-y: scroll;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    background-color: rgba(47, 49, 54, 0.8);
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-box p {
+    margin: 5px 0; 
+    padding: 10px; 
+    border-radius: 5px; 
+    word-wrap: break-word; /* Ensure long messages break */
+}
+
+.message-user {
+    background-color: #3498db; /* Blue for user messages */
+    align-self: flex-end; /* Align user messages to the right */
+    color: #ffffff; /* White text color for user messages */
+}
+
+.message-other {
+    background-color: rgba(230, 178, 171, 0.7); 
+    align-self: flex-start; /* Align other messages to the left */
+    color: #090000; /* White text color for better contrast */
+}
+
+.hidden { display: none; }
+
+#send-message, #login-message {
+    color: #ff6b6b;
+    margin-top: 10px;
+}
+
+#logout-btn, #clear-chat-btn {
+    background-color: #cf6679; /* Red for logout/clear buttons */
+}
+
+#logout-btn:hover, #clear-chat-btn:hover {
+    background-color: #b42d4e; /* Darker red on hover */
+}
+
+footer {
+            background-color: #222;
+            color: #fff;
+            font-size: 14px;
+            bottom: 0;
+            position: fixed;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 999;
+        }
+
+        footer p {
+            margin: 10px 0;
+        }
+
+        footer i {
+            color: red;
+        }
+
+        footer a {
+            color: #3c97bf;
+            text-decoration: none;
+        }
+
+
+@media (max-width: 600px) {
+    #login-section, #chat-section {
+        width: 90%;
+    }
+}
+
+</style>
+</head>
+
+<body>
+<!-- Login Form -->
+<div id="login-section">
+<h2>Login</h2>
+<input type="text" id="email" placeholder="Email" required><br>
+<input type="password" id="password" placeholder="Password" required><br>
+<button id="login-btn">Login</button>
+<p id="login-message"></p>
+</div>
+
+<!-- Chat Section (Initially Hidden) -->
+<div id="chat-section" class="hidden">
+<h2>Social Hub</h2>
+<div id="chat-box">
+    <p>Loading chat messages...</p>
+</div>
+<input type="text" id="message" placeholder="Type your message" required>
+<button id="send-btn">Send</button>
+<p id="send-message"></p>
+
+<!-- Logout Button -->
+<button id="logout-btn">Logout</button>
+<br><br>
+
+<!-- Clear Chat Button -->
+<button id="clear-chat-btn">Clear Chat</button>
+</div>
+
+
+<footer>
+    <p>Made <i class="fas fa-heart"></i> by Roshan Khode</p>
+    <p>Follow <a href="#">roshankhode93@gmail.com</a></p>
+</footer>
+
+    <script>
+        let token = sessionStorage.getItem('token');
+
+        // Show chat section if already logged in
+        if (token) {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+            loadMessages();
+            setInterval(loadMessages, 50); // Poll every 5 seconds
+        }
+
+        // Login function
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                document.getElementById('login-message').innerText = "Please fill in all fields.";
+                return;
+            }
+
+            // Make a request to the login API
+            fetch('http://localhost:3000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Login successful') {
+                        document.getElementById('login-message').innerText = 'Login successful!';
+                        // Store the JWT token in session storage
+                        sessionStorage.setItem('token', data.token);
+                        token = data.token;
+
+                        // Show the chat section and hide login section
+                        document.getElementById('login-section').classList.add('hidden');
+                        document.getElementById('chat-section').classList.remove('hidden');
+                        loadMessages();
+                        setInterval(loadMessages, 5000); // Poll every 5 seconds
+                    } else {
+                        document.getElementById('login-message').innerText = data.message;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('login-message').innerText = 'Error logging in: ' + err.message;
+                });
+        });
+
+        document.getElementById('send-btn').addEventListener('click', () => {
+            const chat = document.getElementById('message').value;
+
+            if (!chat) {
+                document.getElementById('send-message').innerText = 'Message cannot be empty';
+                return;
+            }
+
+            // Send message to the API with token
+            fetch('http://localhost:3000/api/send', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ chat })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Message sent successfully') {
+                        document.getElementById('send-message').innerText = 'Message sent!';
+                        document.getElementById('message').value = ''; // Clear input field
+                    
+                        loadMessages(); // Load messages after sending
+                    } else {
+                        document.getElementById('send-message').innerText = data.message;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('send-message').innerText = 'Error sending message: ' + err.message;
+                });
+        });
+
+        // Function to load messages (GET request)
+        let lastMessageTime = null; // Variable to keep track of the last message time
+
+function loadMessages() {
+    fetch('http://localhost:3000/api/getallmessages')
+        .then(response => response.json())
+        .then(data => {
+            const chatBox = document.getElementById('chat-box');
+
+            // Clear existing loading message if present
+            if (chatBox.innerHTML === '<p>Loading chat messages...</p>') {
+                chatBox.innerHTML = '';
+            }
+
+            // Append messages to the chat box in order they are received
+            data.messages.forEach(message => {
+                // Check if the message is new based on the timestamp
+                if (!lastMessageTime || new Date(message.time) > new Date(lastMessageTime)) {
+                    const messageElem = document.createElement('p');
+                    messageElem.innerText = `${message.name}: ${message.chat}`;
+
+                    // Apply different styles based on sender
+                    if (message.sender === "user") {
+                        messageElem.classList.add("message-user");
+                    } else {
+                        messageElem.classList.add("message-other");
+                    }
+
+                    chatBox.appendChild(messageElem);
+                    lastMessageTime = message.time; // Update the last message time
+                }
+            });
+
+            // Scroll to the bottom of the chat box
+            chatBox.scrollTop = chatBox.scrollHeight; 
+        })
+        .catch(err => {
+            document.getElementById('chat-box').innerText = 'Error loading messages: ' + err.message; 
+        });
+}
+        // Logout function
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('token'); // Remove token from session storage
+            token = null; // Clear token variable
+
+            // Show login section and hide chat section
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
+
+            // Clear any messages or alerts on logout
+            document.getElementById('login-message').innerText = '';
+            document.getElementById('send-message').innerText = '';
+            document.getElementById('chat-box').innerHTML = '<p>Loading chat messages...</p>';
+        });
+
+        // Clear Chat function
+        document.getElementById('clear-chat-btn').addEventListener('click', () => {
+            fetch('http://localhost:3000/api/clearChat', {
+                method: 'DELETE',
+                headers: { 
+                    'Authorization': 'Bearer ' + token 
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Chat cleared successfully') {
+                    document.getElementById('chat-box').innerHTML = '<p>Loading chat messages...</p>';
+                    loadMessages(); // Reload messages
+                } else {
+                    document.getElementById('send-message').innerText = data.message;
+                }
+            })
+            .catch(err => {
+                document.getElementById('send-message').innerText = 'Error clearing chat: ' + err.message;
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script defer src="https://widget-js.cometchat.io/v2/cometchatwidget.js"></script>
+  <style>
+  * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #333;
+}
+
+.login__container {
+  display: flex;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+}
+
+.login__welcome {
+  background-color: #1877f2;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  width: 40%;
+}
+
+.login__welcome p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.login__logo img {
+  width: 150px;
+  height: auto;
+  object-fit: cover;
+}
+
+.login__form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60%;
+  padding: 40px;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 350px;
+}
+
+.login__form input {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.login__submit-btn {
+  background-color: #1877f2;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.login__submit-btn:hover {
+  background-color: #165cbd;
+}
+
+.login__forgot-password, .login__signup {
+  color: #1877f2;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.login__forgot-password:hover, .login__signup:hover {
+  text-decoration: underline;
+}
+
+/* Signup Modal */
+.signup {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.signup__content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+}
+
+.signup__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signup__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.signup__close img {
+  width: 20px;
+  cursor: pointer;
+}
+
+.signup__form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.signup__btn {
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.signup__btn:hover {
+  background-color: #165cbd;
+}
+
+/* Loading Spinner */
+.loading {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.lds-roller {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.lds-roller div {
+  animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  transform-origin: 40px 40px;
+}
+
+.lds-roller div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1877f2;
+  margin: -4px 0 0 -4px;
+}
+
+.lds-roller div:nth-child(1) {
+  animation-delay: -0.036s;
+}
+
+.lds-roller div:nth-child(2) {
+  animation-delay: -0.072s;
+}
+
+@keyframes lds-roller {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+    /* Add the CSS styles here */
+  </style>
+</head>
+<body>
+  <div class="login__container">
+    <div class="login__welcome">
+      <div class="login__logo">
+        <img src="C:\Users\HP\Desktop\project chat\smartphone-1184883_1920.png" />
+      </div>
+      <p>Talk it Out, Together!</p>
+    </div>
+    <div class="login__form-container">
+      <div class="login__form">
+        <input type="text" placeholder="Email or phone number" id="login__email" />
+        <input type="password" placeholder="Password" id="login__password" />
+        <button class="login__submit-btn" id="login__submit-btn">Login</button>
+        <span class="login__forgot-password">Forgot password?</span>
+        <span class="login__signup" id="login__create-account-btn">Create New Account</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('login__submit-btn').addEventListener('click', function() {
+      const email = document.getElementById('login__email').value;
+      const password = document.getElementById('login__password').value;
+  
+      // Validate if both fields are provided
+      if (!email || !password) {
+        alert('Both fields are required');
+        return;
+      }
+  
+      // Make API request to backend
+      fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Login successful') {
+          alert('Welcome! You are logged in.');
+          console.log('Token:', data.token);  // You can store the token if needed
+          // You can also redirect the user to another page after successful login
+          // window.location.href = '/dashboard';
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(err => {
+        alert('Error logging in: ' + err.message);
+      });
+    });
+  </script>
+
+  <!-- Backend Express Server (Node.js) -->
+  <script>
+    const express = require('express');
+    const jwt = require('jsonwebtoken');
+    const bodyParser = require('body-parser');
+
+    const app = express();
+    app.use(bodyParser.json());
+
+    const users = [{ id: 1, email: 'test@example.com', password: 'password123' }];
+
+    app.post('api/login', (req, res) => {
+      const { email, password } = req.body;
+      const user = users.find(u => u.email === email);
+
+      if (!user || user.password !== password) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+
+      const token = jwt.sign({ id: user.id, email: user.email }, 'your_jwt_secret', { expiresIn: '1h' });
+      return res.status(200).json({
+        message: 'Login successful',
+        token,
+        user: { id: user.id, email: user.email }
+      });
+    });
+  </script>
+</body>
+</html>
+
+  <!-- Signup Modal -->
+<div id="signup" class="signup">
+  <div class="signup__content">
+    <div class="signup__container">
+      <div class="signup__title">Sign Up</div>
+      <div class="signup__close">
+        <img id="signup__close-btn" alt="close" src="https://static.xx.fbcdn.net/rsrc.php/v3/y2/r/__geKiQnSG-.png" />
+      </div>
+    </div>
+    <div class="signup__form">
+      <input type="text" placeholder="Email" id="signup__email"/>
+      <input type="password" placeholder="Password" id="signup__password"/>
+      <input type="password" placeholder="Confirm Password" id="signup__confirm-password"/>
+      <button class="signup__btn" id="signup__btn">Sign Up</button>
+    </div>
+  </div>
+</div>
+
+<div id="loading" class="loading">
+  <div class="lds-roller">
+    <div></div><div></div><div></div><div></div>
+    <div></div><div></div><div></div><div></div>
+  </div>
+</div>
+
+<script>
+  // Handle SignUp
+  document.getElementById('signup__btn').addEventListener('click', function() {
+    const email = document.getElementById('signup__email').value;
+    const password = document.getElementById('signup__password').value;
+    const confirmPassword = document.getElementById('signup__confirm-password').value;
+
+    if (!email || !password || !confirmPassword) {
+      alert('All fields are required.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
+    // Show loading spinner
+    document.getElementById('loading').style.display = 'flex';
+
+    // Prepare API data
+    const requestData = { email, password };
+
+    fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Hide loading spinner
+      document.getElementById('loading').style.display = 'none';
+
+      if (data.message === 'User registered successfully') {
+        alert('Registration successful! Redirecting to login page...');
+
+        // Close the signup modal
+        document.getElementById('signup').style.display = 'none';
+
+        // Optionally clear the signup inputs
+        document.getElementById('signup__email').value = '';
+        document.getElementById('signup__password').value = '';
+        document.getElementById('signup__confirm-password').value = '';
+
+        // Simulate login page redirect (you can modify based on your login form setup)
+        document.getElementById('login__email').value = email; // Prefill the login form with email
+      } else {
+        alert(data.message);
+      }
+    })
+    .catch(error => {
+      document.getElementById('loading').style.display = 'none';
+      alert('Failed to sign up: ' + error.message);
+    });
+  });
+
+  // Close the signup modal
+  document.getElementById('signup__close-btn').addEventListener('click', function() {
+    document.getElementById('signup').style.display = 'none';
+  });
+
+  // Show signup modal on "Create New Account" click
+  document.getElementById('login__create-account-btn').addEventListener('click', function() {
+    document.getElementById('signup').style.display = 'flex';
+  });
+</script>
+
+</body>
+</html>
